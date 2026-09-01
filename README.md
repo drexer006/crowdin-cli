@@ -1,56 +1,37 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://support.crowdin.com/assets/logos/symbol/png/crowdin-symbol-cWhite.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://support.crowdin.com/assets/logos/symbol/png/crowdin-symbol-cDark.png">
-    <img width="150" height="150" src="https://support.crowdin.com/assets/logos/symbol/png/crowdin-symbol-cDark.png">
-  </picture>
-</p>
+# README
 
-# Crowdin CLI [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fcrowdin%2Fcrowdin-cli&text=Crowdin%20CLI%20is%20an%20open-source%20command-line%20tool%20that%20allows%20you%20to%20manage%20and%20synchronize%20your%20localization%20resources%20with%20your%20Crowdin%20project)&nbsp;[![GitHub Repo stars](https://img.shields.io/github/stars/crowdin/crowdin-cli?style=social&cacheSeconds=1800)](https://github.com/crowdin/crowdin-cli/stargazers)
+<div align="center"><picture><source srcset="https://support.crowdin.com/assets/logos/symbol/png/crowdin-symbol-cWhite.png" media="(prefers-color-scheme: dark)"><img src="https://support.crowdin.com/assets/logos/symbol/png/crowdin-symbol-cDark.png" alt="" height="150" width="150"></picture></div>
 
-> [!TIP]
-> **Crowdin CLI 5.0 is here!** 🚀 A complete rewrite in TypeScript, powered by [Bun](https://bun.sh) - instant startup, no Java required, and JSON/TOON output built for scripts and AI agents. Your commands and `crowdin.yml` stay the same. [Read the announcement](https://crowdin.github.io/crowdin-cli/blog/2026/08/26/cli-v5)!
+## Crowdin CLI [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?url=https%3A%2F%2Fgithub.com%2Fcrowdin%2Fcrowdin-cli\&text=Crowdin%20CLI%20is%20an%20open-source%20command-line%20tool%20that%20allows%20you%20to%20manage%20and%20synchronize%20your%20localization%20resources%20with%20your%20Crowdin%20project) [![GitHub Repo stars](https://img.shields.io/github/stars/crowdin/crowdin-cli?style=social\&cacheSeconds=1800)](https://github.com/crowdin/crowdin-cli/stargazers)
+
+> \[!TIP] **Crowdin CLI 5.0 is here!** 🚀 A complete rewrite in TypeScript, powered by [Bun](https://bun.sh) - instant startup, no Java required, and JSON/TOON output built for scripts and AI agents. Your commands and `crowdin.yml` stay the same. [Read the announcement](https://crowdin.github.io/crowdin-cli/blog/2026/08/26/cli-v5)!
 
 Crowdin CLI is a command line tool that allows you to manage and synchronize your localization resources with your Crowdin project. Using CLI, you can:
 
-- automate the process of updating your source files in your Crowdin project
-- download translations from Crowdin and automatically save them in the correct locations
-- upload all your existing translations to Crowdin in minutes
-- manage your localization resources without leaving the terminal
-- integrate Crowdin CLI with GitHub, GitLab, Jenkins, CircleCI, and other software
-- plug localization into AI agent workflows - machine-readable output, Agent Skills, and string context enrichment
+* automate the process of updating your source files in your Crowdin project
+* download translations from Crowdin and automatically save them in the correct locations
+* upload all your existing translations to Crowdin in minutes
+* manage your localization resources without leaving the terminal
+* integrate Crowdin CLI with GitHub, GitLab, Jenkins, CircleCI, and other software
+* plug localization into AI agent workflows - machine-readable output, Agent Skills, and string context enrichment
 
 It is cross-platform and runs in a terminal on Linux-based and macOS operating systems, or in the command prompt on Windows.
 
-<div align="center">
+[**`Docs`**](https://crowdin.github.io/crowdin-cli/) | [**`Configuration File`**](https://developer.crowdin.com/configuration-file/) | [**`Getting started with CLI`**](https://www.youtube.com/watch?v=0duN4khpWjM)
 
-[**`Docs`**](https://crowdin.github.io/crowdin-cli/) |
-[**`Configuration File`**](https://developer.crowdin.com/configuration-file/) | 
-[**`Getting started with CLI`**](https://www.youtube.com/watch?v=0duN4khpWjM)
+[![Docker Pulls](https://img.shields.io/docker/pulls/crowdin/cli?logo=docker\&cacheSeconds=2000)](https://hub.docker.com/r/crowdin/cli) [![npm](https://img.shields.io/npm/dt/@crowdin/cli?logo=npm\&cacheSeconds=2000)](https://www.npmjs.com/package/@crowdin/cli) [![homebrew downloads](https://img.shields.io/homebrew/installs/dy/crowdin?logo=homebrew)](https://formulae.brew.sh/formula/crowdin) [![Chocolatey](https://img.shields.io/chocolatey/dt/crowdin-cli?logo=chocolatey\&cacheSeconds=2000)](https://community.chocolatey.org/packages/crowdin-cli) [![GitHub all releases](https://img.shields.io/github/downloads/crowdin/crowdin-cli/total?label=assets%20downloads\&logo=github\&cacheSeconds=2000)](https://github.com/crowdin/crowdin-cli/releases) [![GitHub Used by](https://img.shields.io/static/v1?label=used%20by\&message=3k\&color=brightgreen\&logo=github\&cacheSeconds=10000)](https://github.com/crowdin/crowdin-cli/network/dependents)
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/crowdin/cli?logo=docker&cacheSeconds=2000)](https://hub.docker.com/r/crowdin/cli)
-[![npm](https://img.shields.io/npm/dt/@crowdin/cli?logo=npm&cacheSeconds=2000)](https://www.npmjs.com/package/@crowdin/cli)
-[![homebrew downloads](https://img.shields.io/homebrew/installs/dy/crowdin?logo=homebrew)](https://formulae.brew.sh/formula/crowdin)
-[![Chocolatey](https://img.shields.io/chocolatey/dt/crowdin-cli?logo=chocolatey&cacheSeconds=2000)](https://community.chocolatey.org/packages/crowdin-cli)
-[![GitHub all releases](https://img.shields.io/github/downloads/crowdin/crowdin-cli/total?label=assets%20downloads&logo=github&cacheSeconds=2000)](https://github.com/crowdin/crowdin-cli/releases)
-[![GitHub Used by](https://img.shields.io/static/v1?label=used%20by&message=3k&color=brightgreen&logo=github&cacheSeconds=10000)](https://github.com/crowdin/crowdin-cli/network/dependents)
+[![build-test](https://github.com/crowdin/crowdin-cli/actions/workflows/build-test.yml/badge.svg?branch=main)](https://github.com/crowdin/crowdin-cli/actions/workflows/build-test.yml) [![CodeQL](https://github.com/crowdin/crowdin-cli/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)](https://github.com/crowdin/crowdin-cli/actions/workflows/codeql-analysis.yml) [![codecov](https://codecov.io/gh/crowdin/crowdin-cli/branch/main/graph/badge.svg)](https://codecov.io/gh/crowdin/crowdin-cli)
 
-[![build-test](https://github.com/crowdin/crowdin-cli/actions/workflows/build-test.yml/badge.svg?branch=main)](https://github.com/crowdin/crowdin-cli/actions/workflows/build-test.yml)
-[![CodeQL](https://github.com/crowdin/crowdin-cli/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)](https://github.com/crowdin/crowdin-cli/actions/workflows/codeql-analysis.yml)
-[![codecov](https://codecov.io/gh/crowdin/crowdin-cli/branch/main/graph/badge.svg)](https://codecov.io/gh/crowdin/crowdin-cli)
+[![GitHub contributors](https://img.shields.io/github/contributors/crowdin/crowdin-cli?cacheSeconds=1000)](https://github.com/crowdin/crowdin-cli/graphs/contributors) ![GitHub](https://img.shields.io/github/license/crowdin/crowdin-cli?cacheSeconds=50000)
 
-[![GitHub contributors](https://img.shields.io/github/contributors/crowdin/crowdin-cli?cacheSeconds=1000)](https://github.com/crowdin/crowdin-cli/graphs/contributors)
-![GitHub](https://img.shields.io/github/license/crowdin/crowdin-cli?cacheSeconds=50000)
+<p align="center"></p>
 
- </div>
-
-[<p align="center"><img src="https://raw.githubusercontent.com/crowdin/crowdin-cli/main/website/static/img/cli-demo-image.png" data-canonical-src="https://raw.githubusercontent.com/crowdin/crowdin-cli/main/website/static/img/cli-demo-image.png" width="100%" height="auto" align="center"/></p>](https://crowdin.com)
-
-## Usage
+### Usage
 
 Visit the [documentation](https://crowdin.github.io/crowdin-cli/) for more details.
 
-## Built for AI Agents
+### Built for AI Agents
 
 Crowdin CLI treats AI agents as first-class users: instant startup, stable exit codes, and machine-readable output (`--output json|toon`) make it cheap and predictable for an agent to call dozens of times in a row. The [Crowdin Agent Skills](https://github.com/crowdin/skills) teach your agent the CLI, the configuration file, and the core workflows:
 
@@ -60,13 +41,13 @@ npx skills add crowdin/skills --skill crowdin-cli
 
 Your agent can also enrich your strings with context: it downloads the strings, analyzes your codebase to see how each one is used, and pushes the descriptions back to Crowdin - so translators and AI translations stop guessing. Read [Context Enrichment with AI Agents](https://crowdin.github.io/crowdin-cli/blog/2026/02/23/context-enrichment) to learn more.
 
-## Seeking Assistance and Contributing
+### Seeking Assistance and Contributing
 
-If you find any problems or would like to suggest a feature, please read the [How can I contribute](/CONTRIBUTING.md#how-can-i-contribute) section in our contributing guidelines.
+If you find any problems or would like to suggest a feature, please read the [How can I contribute](contributing.md#how-can-i-contribute) section in our contributing guidelines.
 
-## License
+### License
 
-<pre>
+```
 The Crowdin CLI is licensed under the MIT License. 
 See the LICENSE file distributed with this work for additional 
 information regarding copyright ownership.
@@ -74,4 +55,4 @@ information regarding copyright ownership.
 Except as contained in the LICENSE file, the name(s) of the above copyright
 holders shall not be used in advertising or otherwise to promote the sale,
 use or other dealings in this Software without prior written authorization.
-</pre>
+```

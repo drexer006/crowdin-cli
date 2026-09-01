@@ -1,0 +1,2 @@
+# live-crowdin-cli-validation
+

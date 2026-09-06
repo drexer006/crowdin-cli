@@ -1,5 +1,29 @@
 # Changelog
 
+## [5.0.2](https://github.com/crowdin/crowdin-cli/compare/5.0.1...5.0.2) (2026-09-04)
+
+
+### Bug Fixes
+
+* **branch:** normalize unsupported characters in branch names ([#1104](https://github.com/crowdin/crowdin-cli/issues/1104)) ([3cdcd5a](https://github.com/crowdin/crowdin-cli/commit/3cdcd5aa2804e331f5f657d5c552269f178adf45))
+* **distribution:** stop the release spinner printing "null%" ([#1100](https://github.com/crowdin/crowdin-cli/issues/1100)) ([7d3085c](https://github.com/crowdin/crowdin-cli/commit/7d3085c812d8b5480cc09ee5b7b4d4a52068e113))
+* **download:** exit non-zero when the translations build fails ([#1105](https://github.com/crowdin/crowdin-cli/issues/1105)) ([f628cfd](https://github.com/crowdin/crowdin-cli/commit/f628cfdb104b79373a9979295b2f1dce2affcdd1))
+* **download:** send explicit false export options ([#1111](https://github.com/crowdin/crowdin-cli/issues/1111)) ([9116a72](https://github.com/crowdin/crowdin-cli/commit/9116a721f7b4da972ae9ef876eecb7e1335e7285))
+* exit non-zero when a command bails without doing its work ([#1106](https://github.com/crowdin/crowdin-cli/issues/1106)) ([e566a3a](https://github.com/crowdin/crowdin-cli/commit/e566a3a593d119a22b89bd603a4966a8a1959502))
+* **project:** enforce required options and warn on failed browser open ([#1103](https://github.com/crowdin/crowdin-cli/issues/1103)) ([81da7a1](https://github.com/crowdin/crowdin-cli/commit/81da7a116d3a98d41913b3c0f26c9a20aef9dbe4))
+* **upload:** honour `multilingual: true` when uploading translations ([#1109](https://github.com/crowdin/crowdin-cli/issues/1109)) ([74c886e](https://github.com/crowdin/crowdin-cli/commit/74c886edd085318cddcd3848329a95f3aa7ab3c3))
+* **upload:** report in-project paths in upload sources output ([#1097](https://github.com/crowdin/crowdin-cli/issues/1097)) ([c0a4f40](https://github.com/crowdin/crowdin-cli/commit/c0a4f40b8bbcb672ced6b7a321ab573b61e6bd7d))
+
+## [5.0.1](https://github.com/crowdin/crowdin-cli/compare/5.0.0...5.0.1) (2026-08-31)
+
+
+### Bug Fixes
+
+* **app:** bump api client for --force uninstall ([#1090](https://github.com/crowdin/crowdin-cli/issues/1090)) ([4ff9970](https://github.com/crowdin/crowdin-cli/commit/4ff99704845a9761131fb0e83b79b1fb843251fd))
+* tm/glossary import update ([#1093](https://github.com/crowdin/crowdin-cli/issues/1093)) ([0e89ebc](https://github.com/crowdin/crowdin-cli/commit/0e89ebc0091559df24bf4008be3385e81df5d12a))
+* various bug fixes ([#1079](https://github.com/crowdin/crowdin-cli/issues/1079)) ([1cb6e7d](https://github.com/crowdin/crowdin-cli/commit/1cb6e7d968ef1c484495321a22a994b44452a19f))
+* various fixes for output issues ([#1078](https://github.com/crowdin/crowdin-cli/issues/1078)) ([bc6cfc7](https://github.com/crowdin/crowdin-cli/commit/bc6cfc782e615cd4284214c3228541f78163c51e))
+
 # [5.0.0](https://github.com/crowdin/crowdin-cli/compare/4.15.1...5.0.0) (2026-08-26)
 
 Crowdin CLI 5.0 is a complete rewrite - from Java to TypeScript, powered by [Bun](https://bun.sh): a single self-contained binary with instant startup, machine-readable output for scripts and AI agents, and more. The commands, `crowdin.yml` configuration, and exit codes stay the same.

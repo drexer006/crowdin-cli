@@ -1,10 +1,11 @@
 import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { ProjectsGroupsModel, type ResponseObject, type TranslationsModel } from '@crowdin/crowdin-api-client';
+import { ProjectsGroupsModel, type TranslationsModel } from '@crowdin/crowdin-api-client';
 import AdmZip from 'adm-zip';
 import type { Command } from 'commander';
 import { printDryRunPaths } from '@/cli/commands/common/dryRunPaths.ts';
+import { reportNoManagerAccess } from '@/cli/commands/common/managerAccess.ts';
 import { pathView } from '@/cli/commands/common/views.ts';
 import CliError from '@/cli/errors/CliError.ts';
 import { toCliError } from '@/cli/errors/toCliError.ts';
@@ -18,6 +19,7 @@ import type {
   GetTranslationService,
 } from '@/cli/services.ts';
 import type { CommandDef } from '@/cli/types.ts';
+import { downloadToFile } from '@/cli/utils/downloadToFile.ts';
 import { isMachineFormat, isStructuredFormat } from '@/cli/utils/formatter.ts';
 import type { Output } from '@/cli/utils/output.ts';
 import { matchesManagerSourceFile, matchesSourcePattern, replaceUnaryAsterisk } from '@/lib/config/projectFileMatch.ts';
@@ -66,10 +68,10 @@ interface SourcesOptions extends GlobalOptions {
 }
 
 interface ExportCombo {
-  skipUntranslatedStrings: boolean;
-  skipUntranslatedFiles: boolean;
-  exportApprovedOnly: boolean;
-  exportStringsThatPassedWorkflow: boolean;
+  skipUntranslatedStrings?: boolean;
+  skipUntranslatedFiles?: boolean;
+  exportApprovedOnly?: boolean;
+  exportStringsThatPassedWorkflow?: boolean;
 }
 
 export default class DownloadCommand {
@@ -136,8 +138,8 @@ export default class DownloadCommand {
     // then fetch the project and reject string-based ones.
     if (options.reviewed && !projectService.isEnterprise()) {
       output.warning('Operation is available only for Crowdin Enterprise');
-      // An early exit still owes the machine formats a document: 'bailed' is carried by the exit
-      // code and the stderr diagnostic, not by an absent stdout, which reads as an empty result.
+      // An early exit still owes the machine formats a document; an absent stdout would read as an
+      // empty result either way.
       output.list([], downloadedFileView);
       return;
     }
@@ -181,12 +183,11 @@ export default class DownloadCommand {
     if (options.reviewed) {
       const build = await fileService.buildReviewedSources(branch?.id);
       const downloadUrl = await fileService.getReviewedSourcesDownloadUrl(build.data.id);
-      const response = await fetch(downloadUrl);
       const tempDir = await mkdtemp(path.join(tmpdir(), 'crowdin-reviewed-sources-'));
 
       try {
         const archivePath = path.join(tempDir, 'reviewed.zip');
-        await Bun.write(archivePath, response);
+        await downloadToFile(downloadUrl, archivePath);
 
         // The reviewed archive nests every file under a `<source_language_id>-REV` directory;
         // strip that prefix so keys line up with the project file paths (mirrors Java).
@@ -253,10 +254,8 @@ export default class DownloadCommand {
       try {
         const filePath = path.join(config.basePath, download.destination);
         const downloadUrl = await fileService.getSourceFileDownloadUrl(download.fileId);
-        const response = await fetch(downloadUrl);
 
-        await mkdir(path.dirname(filePath), { recursive: true });
-        await Bun.write(filePath, response);
+        await downloadToFile(downloadUrl, filePath);
         output.success(`File '${download.relativePath}'`);
         downloadedFiles.push({ path: download.relativePath, action: 'downloaded' });
       } catch (error) {
@@ -297,10 +296,7 @@ export default class DownloadCommand {
     }
 
     if (!hasManagerAccess(project)) {
-      output.warning('You must have manager or developer role in the project to perform this action');
-      // An early exit still owes the machine formats a document: 'bailed' is carried by the exit
-      // code and the stderr diagnostic, not by an absent stdout, which reads as an empty result.
-      output.list([], downloadedFileView);
+      reportNoManagerAccess(output, options.output);
       return;
     }
 
@@ -398,26 +394,17 @@ export default class DownloadCommand {
           skipUntranslatedFilesUsed = true;
         }
 
-        let build: ResponseObject<TranslationsModel.Build>;
-
-        try {
-          build = group.pseudo
-            ? await translationService.buildProjectTranslations(group.pseudo)
-            : await translationService.buildProjectTranslations(group.request);
-        } catch {
-          // Mirrors Java's ProjectBuildFailedException handling: warn and abort gracefully.
-          output.warning("Didn't manage to build translations");
-          return;
-        }
+        const build = group.pseudo
+          ? await translationService.buildProjectTranslations(group.pseudo)
+          : await translationService.buildProjectTranslations(group.request);
 
         const downloadUrl = await translationService.getTranslationDownloadUrl(build.data.id);
-        const response = await fetch(downloadUrl);
 
         const tempDir = await mkdtemp(path.join(tmpdir(), 'crowdin-translations-'));
         tempDirs.push(tempDir);
         const archivePath = path.join(tempDir, 'translations.zip');
 
-        await Bun.write(archivePath, response);
+        await downloadToFile(downloadUrl, archivePath);
 
         // Pseudo builds always map all target languages (Java ignores export_languages/exclude here).
         const mappingLanguages = group.pseudo ? projectLanguages : resolvedLanguages;
@@ -532,6 +519,9 @@ export default class DownloadCommand {
    * `distinct()` over the four per-file flags) so each combo is built once and only its own file
    * groups are mapped from that archive. A CLI flag (when set) overrides the per-file config value
    * on every file, forcing `true` — picocli/commander boolean flags can only force true, never false.
+   *
+   * Combo values are tri-state: an unset option is left out of the build request so the project
+   * export settings apply, while an explicit `false` is sent and overrides them.
    */
   private buildExportGroups(
     config: Config,
@@ -571,10 +561,10 @@ export default class DownloadCommand {
     }
 
     const effectiveCombo = (file: Config['files'][number]): ExportCombo => ({
-      skipUntranslatedStrings: options.skipUntranslatedStrings ? true : (file.skip_untranslated_strings ?? false),
-      skipUntranslatedFiles: options.skipUntranslatedFiles ? true : (file.skip_untranslated_files ?? false),
-      exportApprovedOnly: options.exportOnlyApproved ? true : (file.export_only_approved ?? false),
-      exportStringsThatPassedWorkflow: file.export_strings_that_passed_workflow ?? false,
+      skipUntranslatedStrings: options.skipUntranslatedStrings ? true : file.skip_untranslated_strings,
+      skipUntranslatedFiles: options.skipUntranslatedFiles ? true : file.skip_untranslated_files,
+      exportApprovedOnly: options.exportOnlyApproved ? true : file.export_only_approved,
+      exportStringsThatPassedWorkflow: file.export_strings_that_passed_workflow,
     });
 
     // Group files by distinct combo, preserving first-seen order (mirrors Java distinct()).
@@ -603,15 +593,16 @@ export default class DownloadCommand {
         request.targetLanguageIds = resolvedLanguageIds;
       }
 
-      if (combo.skipUntranslatedStrings) {
-        request.skipUntranslatedStrings = true;
+      if (combo.skipUntranslatedStrings !== undefined) {
+        request.skipUntranslatedStrings = combo.skipUntranslatedStrings;
       }
 
-      if (combo.skipUntranslatedFiles) {
-        request.skipUntranslatedFiles = true;
+      if (combo.skipUntranslatedFiles !== undefined) {
+        request.skipUntranslatedFiles = combo.skipUntranslatedFiles;
       }
 
       if (isOrganization) {
+        // Enterprise has no way to force approvals off, so only `true` maps to a request field.
         if (combo.exportApprovedOnly) {
           request.exportWithMinApprovalsCount = 1;
         }
@@ -620,8 +611,8 @@ export default class DownloadCommand {
           request.exportStringsThatPassedWorkflow = true;
         }
       } else {
-        if (combo.exportApprovedOnly) {
-          request.exportApprovedOnly = true;
+        if (combo.exportApprovedOnly !== undefined) {
+          request.exportApprovedOnly = combo.exportApprovedOnly;
         }
 
         if (combo.exportStringsThatPassedWorkflow) {

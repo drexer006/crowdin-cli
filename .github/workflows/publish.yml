@@ -40,7 +40,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Lint and format check
-        run: bunx biome check
+        run: bun run lint
 
       - name: Run tests
         run: bun run test
@@ -119,11 +119,12 @@ jobs:
       - name: Update npm
         run: npm install -g npm@11.18.0
 
-      - name: Publish
-        run: npm publish packages/npm/cli
+      - name: Stage publish
+        # Staged, not published: the launcher reaches the registry only once a maintainer approves it with 2FA
+        run: npm stage publish packages/npm/cli
 
   assets:
-    # Builds the standalone binaries and creates the GitHub release once the npm packages are published
+    # Builds the standalone binaries and creates the GitHub release once the platform packages are published and the launcher is staged
     needs: publish-cli
     runs-on: ubuntu-latest
     permissions:
@@ -157,11 +158,12 @@ jobs:
           echo ${{ steps.version.outputs.version }} > version.txt
 
       - name: Create release
-        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           tag_name: ${{ steps.version.outputs.version }}
           target_commitish: ${{ github.sha }}
           files: release-assets/*
+          generate_release_notes: true
 
   aur:
     runs-on: ubuntu-latest
@@ -393,7 +395,7 @@ jobs:
         run: iscc /DMyAppVersion=${{ steps.version.outputs.version }} packages\exe\CrowdinCLIInstaller.iss
 
       - name: Upload asset
-        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           tag_name: ${{ steps.version.outputs.version }}
           files: crowdin-installer.exe

@@ -3,6 +3,7 @@ import type { LanguagesModel, SourceFilesModel, SourceStringsModel } from '@crow
 import { ProjectsGroupsModel } from '@crowdin/crowdin-api-client';
 import type { Command } from 'commander';
 import { printDryRunPaths } from '@/cli/commands/common/dryRunPaths.ts';
+import { reportNoManagerAccess } from '@/cli/commands/common/managerAccess.ts';
 import CliError from '@/cli/errors/CliError.ts';
 import FileExistsError from '@/cli/errors/FileExistsError.ts';
 import FileInUpdateError from '@/cli/errors/FileInUpdateError.ts';
@@ -116,10 +117,10 @@ export default class UploadSourcesCommand {
       ({ fileOptions }) => (fileOptions.excluded_target_languages?.length ?? 0) > 0,
     );
 
-    // Java warns and exits 0 by default; its non-zero exit only happened under the removed `--plain`
-    // flag, so this matches Java's default behavior.
     if (!hasManagerAccess(project) && (containsExcludedLanguages || options.deleteObsolete)) {
-      output.warning(
+      reportNoManagerAccess(
+        output,
+        options.output,
         "You must have manager or developer role in the project to apply 'excluded-languages' or/and 'delete-obsolete' options",
       );
       return;
@@ -204,12 +205,15 @@ export default class UploadSourcesCommand {
       );
     }
 
-    // A machine --output emits the bare sorted source paths (Java DryrunSources plain view) and wins
-    // over --tree; otherwise fall through to the per-file "would be created/updated" messages.
+    // A machine --output emits the bare sorted in-project paths (Java DryrunSources plain view) and
+    // wins over --tree; otherwise fall through to the per-file "would be created/updated" messages.
+    // Paths are the resolved project paths, not the local ones: like Java, a dry run has to show
+    // where the file lands in Crowdin, which `dest` and a stripped common path (preserve_hierarchy:
+    // false) both move away from the repo layout.
     if (
       options.dryrun &&
       printDryRunPaths(
-        toSortedRelativePaths(patternFilePaths.flatMap(({ files }) => files.map(({ localFilePath }) => localFilePath))),
+        toSortedRelativePaths(patternFilePaths.flatMap(({ files }) => files.map(({ projectPath }) => projectPath))),
         options,
         output,
       )
@@ -285,7 +289,7 @@ export default class UploadSourcesCommand {
 
         if (isStringsBasedProject) {
           if (options.dryrun) {
-            output.info(`File '${localFilePath}' would be uploaded`);
+            output.info(`File '${projectPath}' would be uploaded`);
             return;
           }
 
@@ -295,7 +299,7 @@ export default class UploadSourcesCommand {
             checksum = await computeChecksum(localFile);
 
             if (sourceHashes.get(localFilePath) === checksum) {
-              output.info(`File '${localFilePath}' was skipped since it is up to date`);
+              output.info(`File '${projectPath}' was skipped since it is up to date`);
               uploadedSources.push({ path: projectPath, action: 'skipped', reason: 'up to date' });
               return;
             }
@@ -336,13 +340,13 @@ export default class UploadSourcesCommand {
 
         if (existingFile) {
           if (options.autoUpdate === false) {
-            output.info(`File '${localFilePath}' already exists and will not be updated`);
+            output.info(`File '${projectPath}' already exists and will not be updated`);
             uploadedSources.push({ path: projectPath, action: 'skipped', reason: 'auto-update disabled' });
             return;
           }
 
           if (options.dryrun) {
-            output.info(`File '${localFilePath}' would be updated`);
+            output.info(`File '${projectPath}' would be updated`);
             return;
           }
 
@@ -352,7 +356,7 @@ export default class UploadSourcesCommand {
             checksum = await computeChecksum(localFile);
 
             if (sourceHashes.get(localFilePath) === checksum) {
-              output.info(`File '${localFilePath}' was skipped since it is up to date`);
+              output.info(`File '${projectPath}' was skipped since it is up to date`);
               uploadedSources.push({ path: projectPath, action: 'skipped', reason: 'up to date' });
               return;
             }
@@ -406,7 +410,7 @@ export default class UploadSourcesCommand {
         let directoryId: number | undefined;
 
         if (options.dryrun) {
-          output.info(`File '${localFilePath}' would be created`);
+          output.info(`File '${projectPath}' would be created`);
           return;
         }
 

@@ -3,6 +3,7 @@ import type { LanguagesModel } from '@crowdin/crowdin-api-client';
 import { ProjectsGroupsModel } from '@crowdin/crowdin-api-client';
 import type { Command } from 'commander';
 import { printDryRunPaths } from '@/cli/commands/common/dryRunPaths.ts';
+import { reportNoManagerAccess } from '@/cli/commands/common/managerAccess.ts';
 import CliError from '@/cli/errors/CliError.ts';
 import WrongLanguageError from '@/cli/errors/WrongLanguageError.ts';
 import type { GlobalOptions } from '@/cli/options.ts';
@@ -19,8 +20,8 @@ import { isMachineFormat, isStructuredFormat } from '@/cli/utils/formatter.ts';
 import type { Output } from '@/cli/utils/output.ts';
 import SourceFileLoader from '@/lib/config/SourceFileLoader.ts';
 import { resolveTranslationPath } from '@/lib/config/translationPathResolver.ts';
-import { assertFilesConfigured, type Config } from '@/lib/config.ts';
-import { languagePatterns } from '@/lib/export/patterns.ts';
+import { assertFilesConfigured, type Config, isMultilingualFile } from '@/lib/config.ts';
+import { containsLanguagePlaceholder } from '@/lib/export/languagePlaceholders.ts';
 import { hasManagerAccess } from '@/lib/project/access.ts';
 import { fileLookup } from '@/lib/upload/fileLookup.ts';
 import { getCommonPath, resolveProjectPath } from '@/lib/upload/fileOptions.ts';
@@ -72,10 +73,7 @@ export default class UploadTranslationsCommand {
     const project = await projectService.loadProject();
 
     if (!hasManagerAccess(project)) {
-      output.warning('You must have manager or developer role in the project to perform this action');
-      // An early exit still owes the machine formats a document: 'bailed' is carried by the exit
-      // code and the stderr diagnostic, not by an absent stdout, which reads as an empty result.
-      output.list([], uploadedFileView);
+      reportNoManagerAccess(output, options.output);
       return;
     }
 
@@ -199,8 +197,8 @@ export default class UploadTranslationsCommand {
    * Builds the list of translation uploads from local source files, mirroring Java's
    * UploadTranslationsAction: sources are resolved to project paths (honoring dest /
    * preserve_hierarchy / ignore), and each source expands to one entry per target language —
-   * or a single multi-language entry when a `scheme` is set and the translation pattern has no
-   * language placeholder.
+   * or a single multi-language entry for a multilingual file (a `scheme` or `multilingual: true`)
+   * whose translation pattern has no language placeholder.
    */
   private buildTranslationEntries(
     config: Config,
@@ -256,9 +254,9 @@ export default class UploadTranslationsCommand {
 
         const firstLanguage = targetLanguages[0];
         const isMultilingual =
-          patterns.scheme !== undefined &&
+          isMultilingualFile(patterns) &&
           firstLanguage !== undefined &&
-          !this.translationHasLanguagePlaceholder(patterns.translation);
+          !containsLanguagePlaceholder(patterns.translation);
 
         if (isMultilingual) {
           const translationPath = stripLeadingSlashes(
@@ -288,10 +286,6 @@ export default class UploadTranslationsCommand {
     }
 
     return { entries, hasErrors };
-  }
-
-  private translationHasLanguagePlaceholder(translation: string): boolean {
-    return languagePatterns.some((pattern) => translation.includes(pattern));
   }
 
   /**

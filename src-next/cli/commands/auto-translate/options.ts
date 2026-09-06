@@ -6,7 +6,7 @@ export const language: OptionDef = {
   type: 'string',
   variadic: true,
   default: ['all'],
-  description: 'Languages to which auto-translation should be applied. Can be specified multiple times. Default: all',
+  description: 'Languages to which auto-translation should be applied. Can be specified multiple times',
 };
 
 export const excludeLanguage: OptionDef = {
@@ -27,7 +27,6 @@ export const file: OptionDef = {
 export const method: OptionDef = {
   name: 'method',
   type: 'string',
-  required: true,
   description: 'Defines auto-translation method. Supported values: mt, tm, ai',
 };
 
